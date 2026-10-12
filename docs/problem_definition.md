@@ -8,20 +8,39 @@ readiness before selecting a paper question or training models.
 
 ## Working topic
 
-**Evidence-first research on reliable localization in annotated chest
-radiographs**
+**How do annotation type and dataset shift affect localization learning and
+evaluation in chest radiographs?**
 
-Our project topic is reliable, reproducible study of annotated chest
-radiographs, with each dataset kept faithful to its native task. The leading
-paper-topic candidate is to study whether specific data-preparation and
-evaluation choices materially change localization conclusions on
-ChestX-Det10, then test only a justified, separate replication on RSNA.
+This is the proposed overarching research programme, not yet an approved
+single-paper title or a novelty claim. Its scientific core is localization
+under different forms of radiologist supervision—not building a modular
+codebase and not comparing unrelated leaderboard scores.
 
-This is a working direction, not an approved paper question or novelty
-claim. Existing papers already introduce these tasks, and ChestX-Det10
-already reports both AP and its native low-FP recall measure. A paper cannot
-claim novelty simply because this repository implements adapters, trains
-another detector, or reports both scores.
+The three datasets can contribute to a connected programme, but they do not
+currently support one ordinary pooled benchmark experiment:
+
+- ChestX-Det10 supplies multi-finding bounding boxes, including
+  pneumothorax.
+- RSNA supplies boxes for possible lung opacity, a distinct target that
+  should not be relabeled as pneumothorax or ChestX-Det10 consolidation.
+- SIIM-ACR supplies pneumothorax masks, which are not equivalent to boxes.
+  Its local archive is currently unusable.
+
+**Best single-paper hypothesis, conditional on a new reader study:** measure
+whether model-to-reference localization error is meaningfully different
+from qualified-reader-to-reader disagreement, and whether that relationship
+varies across task-specific case studies. This could use all three datasets
+as separate analyses, never as a pooled score. Since dataset, cohort,
+finding, and annotation geometry differ together, between-dataset differences
+must be interpreted descriptively, not attributed to annotation geometry
+alone. The study requires blinded, independent radiologist rereads and a
+complete authorized SIIM source; neither condition is currently established.
+
+**Best feasible alternative if rereads are not possible:** a focused
+pneumothorax box-to-mask transfer study using ChestX-Det10 and SIIM-ACR after
+SIIM recovery. RSNA then belongs in a separate possible-opacity study, not
+that paper. A project or thesis may still connect all three as separate
+studies, provided each claim and metric remains dataset/task-specific.
 
 ## Problem statement
 
@@ -43,30 +62,49 @@ problem is still open: we must identify a question that is both supported by
 the usable data and meaningfully extends prior work. A modular codebase or a
 new baseline alone is not a scientific novelty claim.
 
-## Provisional research question
+## Proposed scientific question and decision
 
-> On ChestX-Det10, do well-defined differences in box matching, FROC
-> interpolation, or threshold selection materially change reported native
-> detection performance or scientific conclusions for identical frozen
-> predictions?
+> When localization models are evaluated against radiologist annotations,
+> how much of the observed model-to-reference disagreement exceeds
+> qualified-reader disagreement, and how does that relationship differ
+> across box-annotated findings and mask-annotated pneumothorax?
 
-This is a **candidate**, not an approved final question. Its scope must be
-made testable by Gate 1: the published evaluator's implementation should be
-compared against its documented protocol, not arbitrary alternative
-definitions. Test the metric first using synthetic cases, then use identical
-frozen predictions for paired evaluator comparisons. If exact evaluator
-behavior matches the documented protocol and no meaningful ambiguity exists,
-this question is not a paper contribution. Analyze any other task separately.
-Do not average recall at fixed false-positive rates, box mAP, and Dice into a
-common score.
+This is the strongest current **single-paper concept** for including all
+three resources: its common scientific object is localization agreement
+relative to human annotation, not a shared disease label or metric. The
+primary analysis would estimate reader-to-reader and model-to-reader
+agreement on the same held-out images using blinded independent rereads.
+Model predictions must be frozen before reread labels are revealed, and the
+rereading radiologists must not see the source annotations or predictions.
+ChestX-Det10, RSNA, and SIIM would each be analyzed under their own
+instructions, reference format, and native evaluation; scores such as
+fixed-FP recall, mAP, and Dice must not be averaged or presented as directly
+comparable. Because finding, cohort, and annotation geometry are not
+independently varied across these datasets, between-dataset differences
+cannot establish that annotation geometry caused a difference.
 
-ChestX-Det10 is the primary pilot because its native protocol is documented
-and its local source files are structurally readable. RSNA is a possible
-separate study only if the question can be meaningfully replicated under its
-own mAP protocol, patient-grouped validation, and data terms. SIIM-ACR is
-blocked and has a distinct segmentation target. If the proposed sensitivity
-analysis is already well covered, or no controlled comparison is feasible,
-narrow or replace the question before implementing training.
+The hypothesis is testable, but its feasibility is **not yet demonstrated**:
+the public ChestX-Det10 and RSNA releases do not by themselves provide usable
+independent reader annotations for every case, a reread protocol and reader
+resources are not yet arranged, and the local SIIM archive is incomplete.
+Therefore this is a research proposal, not an approved paper topic. Do not
+start training for it until the three feasibility gates pass:
+
+1. Confirm permission, funding, and a blinded protocol for independent
+   radiologist rereads on samples from each dataset.
+2. Recover a complete authorized SIIM source and validate images, masks,
+   labels, and patient/study grouping.
+3. Finish targeted prior-art review and a cross-dataset duplicate audit;
+   determine that the reader-relative question is not already answered by
+   closely related work.
+
+If these gates fail, do not dilute the question to force all three datasets
+into one paper. Use a pneumothorax box-to-mask transfer study on
+ChestX-Det10 and SIIM only if SIIM becomes usable and a targeted novelty
+review supports it. Otherwise run a separate RSNA possible-opacity study or
+keep the work as a rigorous engineering/reproducibility baseline. Never
+equate RSNA opacity with ChestX-Det10 consolidation without a separately
+justified clinical mapping.
 
 ## Closest prior work and implications
 
@@ -99,30 +137,29 @@ review is not proof that no related paper exists.
 | [ChestX-Det10 official evaluator](https://github.com/Deepwise-AILab/ChestX-Det10-Dataset/blob/master/eval.py) | Defines FROC-style matching/interpolation at the native FP/image points; the released IoU implementation uses inclusive `+1` box dimensions. | Reimplementing a scorer is not a contribution by itself. First identify a documented ambiguity/bug and quantify whether it changes conclusions. |
 | Shih et al. (2019), [RSNA annotation paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC8017407/) and [DOI](https://doi.org/10.1148/ryai.2019180041) | Describes expert annotation of opacities that may represent pneumonia, including multiple readers/adjudication, as a distinct NIH-derived challenge task. | RSNA is not a ChestX-Det10 class and cannot be pooled as a matching ontology. Use its own patient grouping and mAP at IoU 0.4. |
 | Zech et al. (2018), [institutional generalization study](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1002683) | In 158,323 radiographs from NIH, Mount Sinai, and Indiana, external performance was lower in 3 of 5 natural comparisons; hospital source was highly predictable, and prevalence differences affected apparent performance. The endpoint was image-level pneumonia screening/classification. | Motivates caution and source-aware design, but does not test these box datasets, local subsets, or actual ChestX-Det10/RSNA overlap. |
-| Dumbrique et al. (2024), [P-DeSeRay](https://doi.org/10.3389/fradi.2024.1424065), and the [SIIM-ACR challenge](https://www.kaggle.com/competitions/siim-acr-pneumothorax-segmentation/data) | Proposes a patch-based fully convolutional encoder-decoder for pneumothorax detection/segmentation, evaluates on SIIM-ACR and a private hospital dataset, and reports benefit from a mixed Tversky/focal loss ablation. | Routine SIIM architecture/loss comparisons already have direct precedent. SIIM is a separate segmentation task and unusable from the current local archive. |
+| Wang et al. (2020), [CheXLocNet](https://doi.org/10.1371/journal.pone.0242013) | Studies automatic pneumothorax localization in chest radiographs, including SIIM-ACR-derived data and segmentation/localization evaluation. | Pneumothorax localization on SIIM is established prior work; a new model or standard segmentation baseline is not enough. |
+| Santomartino et al. (2023), [code-free CXR study](https://doi.org/10.1148/ryai.220062) | Evaluates code-free deep-learning systems across chest-radiograph classification, object detection, and segmentation; includes external benchmark tasks such as RSNA opacity detection and SIIM pneumothorax segmentation. | Multi-benchmark use already exists, but it does not make unlike targets or native metrics interchangeable, nor does it answer reader-relative localization agreement. |
+| Dumbrique et al. (2024), [P-DeSeRay](https://doi.org/10.3389/fradi.2024.1424065) | Evaluates pneumothorax detection/segmentation on SIIM-ACR and a private hospital dataset and reports a loss ablation. | Routine SIIM architecture/loss comparisons already have direct precedent. SIIM is a separate segmentation task and unusable from the current local archive. |
 
-### Candidate-topic comparison
+### Topic comparison and scope decision
 
-| Candidate topic | Proposed test | Feasibility | Main weakness / decision |
-|---|---|---|---|
-| **1. ChestX-Det10 measurement sensitivity** | Freeze identical predictions; compare the authors' evaluator with an independently tested implementation and report native FROC plus separately defined AP. Test whether scoring conventions change results or conclusions. | Highest: local archives/JSON are available, and evaluator tests can be built with synthetic predictions before training. | The dataset paper already reports both AP and fixed-FP recall. Proceed as a paper only if a consequential, previously unaddressed ambiguity exists; otherwise it is a correctness check, not a paper topic. |
-| **2. ChestX-Det10 integrity/provenance audit** | Validate image coverage, decoded dimensions, box overlays, duplicates, split provenance, and recoverable patient/study separation; quantify model impact only if a consequential issue is found. | High as required engineering, but patient/study metadata may be missing. | A generic checklist is incremental. A paper depends on a material, independently verified finding or effect. |
-| **3. RSNA DICOM-rendering sensitivity** | Compare prespecified, standards-consistent DICOM rendering policies using a fixed detector, patient-grouped validation, and mAP at IoU 0.4. | Moderate: labeled archive and `patientId` exist, but renderer, scorer, and terms need verification. | Plausible alternative if a deeper search establishes an under-studied, consequential question. Could be only engineering if choices are arbitrary or settled. Keep separate from ChestX-Det10. |
-| **4. Cross-dataset transfer / NIH-lineage overlap** | First identify exact-image/patient matches and establish a genuinely shared target; only then consider transfer/external validation with a sensitivity analysis excluding matches. | Low to moderate: shared source lineage motivates an audit but does not prove overlap. | Do not select now. No common ontology is justified; do not call either set an independent external test without evidence. |
-| **5. SIIM mask segmentation / mask-to-box** | Recover valid images/masks and reproduce Dice segmentation first. Prespecify any derived-box analysis as a separate target. | Not currently feasible; local archive is incomplete/unusable. | Exclude unless complete authorized data are recovered. |
+| Candidate | Scientific question and use of datasets | Feasibility and decision |
+|---|---|---|
+| **A. Model localization versus reader variability (recommended all-three paper concept)** | On blinded rereads, compare model-to-reader localization with reader-to-reader agreement. Use ChestX-Det10 findings boxes, RSNA possible-opacity boxes, and SIIM pneumothorax masks as separate task-specific analyses. | Strongest shared scientific question without pretending labels or metrics match. Not currently executable: requires new independent reads and a valid SIIM source. Select only if reader resources, permissions, dataset readiness, and novelty checks pass. |
+| **B. Pneumothorax box-to-mask transfer** | Test whether box supervision from ChestX-Det10 can support pneumothorax mask localization on SIIM (and/or the reverse direction), comparing with target-only baselines and reporting native metrics separately. | More concrete and task-linked, but only uses two datasets and SIIM is blocked. Target mapping, patient/image deduplication, and novelty need careful review. RSNA remains separate. |
+| **C. Heterogeneous multi-task learning** | Share an encoder while using dataset-specific heads for ChestX-Det10 boxes, RSNA opacity boxes, and SIIM masks; compare against independently trained and target-only models. | Plausible programme direction but not selected as a paper: requires full SIIM, adequate compute, leakage controls, and a sharper causal hypothesis than “joint training helps.” Negative transfer is a central possible result. |
+| **D. ChestX-Det10 evaluator or RSNA rendering sensitivity** | Test a specific consequential matching/interpolation ambiguity or DICOM-rendering choice using frozen predictions and the dataset-native protocol. | Useful correctness/pilot work. It becomes a paper only if targeted review finds a consequential unresolved choice; routine metric reporting or rendering ablations are not enough. Keep each dataset's task separate. |
+| **E. Three-dataset model leaderboard** | Train standard detectors/segmenters and list scores for each dataset. | Rejected as a paper topic: unrelated targets, output geometry, and metrics do not become one scientific question by sharing an architecture. |
 
-**Project-level topic recommendation:** reliable, task-faithful evaluation of
-annotated chest-radiograph datasets. Begin with the ChestX-Det10 integrity
-and evaluator pilot; keep RSNA separate and SIIM blocked. Do **not** yet
-approve a paper topic or novelty claim. The leading paper hypothesis is
-evaluator/endpoint sensitivity only if the next focused literature search
-finds an exact, unaddressed ambiguity; otherwise pivot rather than stretching
-the claim.
-
-The plausible added value is therefore not a new disease detector. The
-candidate is a transparent audit of whether specific data and evaluation
-decisions materially affect task-native conclusions. The current review does
-not prove that this gap exists.
+**Decision:** advance candidate A as the lead *proposal* for a unified
+three-dataset paper, but do not call it novel or begin its training until
+feasibility and prior-art gates pass. If reader rereads cannot be arranged,
+prefer candidate B as a two-dataset pneumothorax study only after SIIM is
+recovered. The larger project may still include a separate RSNA study. A
+three-dataset thesis/programme is defensible as connected studies; one
+three-dataset paper is defensible only if it tests a shared scientific
+hypothesis such as reader-relative localization and preserves task-specific
+analyses.
 
 ## Annotated literature review: 57 publications
 
@@ -338,45 +375,58 @@ datasets.
 
 ### What still needs evidence
 
-1. Whether ChestX-Det10 scorer details create any meaningful ambiguity
-   beyond choices already disclosed in its paper and evaluator.
-2. Whether controlled DICOM-rendering choices on RSNA have an
-   under-investigated, consequential effect on its native box metric.
-3. Whether patient/source identifiers support a valid split and overlap
-   audit; NIH lineage alone does not prove duplicate images or patients.
-4. Whether the SIIM source can be recovered completely and lawfully; the
-   local archive has not been validated as usable in this review.
-5. Whether any exact version of these candidate studies has already been
-   published. A focused 57-publication bibliography is not exhaustive and
-   does not prove novelty.
+1. Whether a blinded reread study is permissible and feasible, including
+   radiologist availability, sampling, annotation instructions, adjudication,
+   and a prespecified analysis of reader-to-reader variation.
+2. Whether the closest reader-variability and localization studies already
+   answer the proposed question; the current focused literature review does
+   not prove novelty.
+3. Whether the SIIM source can be recovered completely and lawfully; the
+   local archive has not been validated as usable.
+4. Whether image/patient/source identifiers support a valid split and
+   duplicate audit; NIH lineage alone does not prove overlap.
+5. Whether each dataset provides enough representative cases and
+   task-specific annotations for informative confidence intervals and
+   prespecified strata.
 
 ### Decision
 
-The **project topic** is selected: reliable, task-faithful evaluation of
-annotated chest radiographs. The **paper topic is not selected yet**. Begin
-with ChestX-Det10 data-integrity checks and synthetic validation of its
-official evaluator. In parallel, do a focused search for scorer-sensitivity
-studies and RSNA DICOM-rendering studies. Promote one to the paper question
-only if it is both under-addressed and experimentally testable with our
-assets.
+The **overarching project topic** is proposed: how annotation type and
+dataset shift affect localization learning and evaluation in chest
+radiographs. The **lead all-three paper concept** is model localization
+relative to independent reader variability; it is conditional on new blinded
+rereads, SIIM recovery, and a completed novelty review. It is not yet
+approved for implementation or claimed as novel.
 
-The closest direct paper review confirms that a normal detector comparison,
-a simple AP-versus-native-recall table, or modular data-loader engineering
-alone would be weak. If no consequential effect or research gap survives the
-next review, keep the work as a high-quality reproducibility/engineering
-project instead of forcing a novelty claim. Do not select SIIM as the
-current topic while its source is unavailable.
+The closest direct work establishes that SIIM pneumothorax localization,
+RSNA opacity detection, and ChestX-Det10 detection already have prior art.
+Routine model comparisons, a simple AP-versus-native-recall table, or
+modular data-loader engineering alone are weak contributions. The next
+research action is therefore to validate whether the reader-relative
+question can be executed: confirm reader availability/permissions, establish
+a reread sampling and adjudication protocol, recover/verify SIIM, and
+complete targeted prior-art searches for reader disagreement, observer
+variability, and localization evaluation. Run the overlap/provenance audit
+before cross-dataset training or external-test claims.
 
-**Paper title: premature.** Name the paper after the question, comparator,
-and study protocol are justified—not before.
+If the reread study is infeasible, investigate pneumothorax box-to-mask
+transfer as a two-dataset paper only after SIIM recovery and a separate
+novelty check. Keep RSNA as an independent possible-opacity study. If neither
+question survives feasibility and novelty checks, retain the work as a
+high-quality reproducibility/engineering project rather than manufacturing
+a novelty claim.
+
+**Paper title: premature.** Name the paper only after the question,
+comparator, reader protocol, dataset availability, and study protocol are
+justified.
 
 ## Dataset requirements and roles
 
 | Dataset | Native annotation/task | Current local status | Role in this project |
 |---|---|---|---|
-| [ChestX-Det10](../dataset_assessment.md#compact-paper-shortlist) | 2D boxes for 10 thoracic findings, including pneumothorax; supplied train/test split; recall at 0.05, 0.1, and 0.2 false positives per image, with IoU 0.5. | Train/test image archives and JSON annotations are locally present. Annotation structure and ZIP integrity have been checked, but image-to-box dimension checks, visual review, and patient/study split independence remain open. | **Primary feasibility pilot.** Preserve the native metric. Only pursue a metric-sensitivity paper if a meaningful gap survives the targeted literature review. |
-| [RSNA Pneumonia Detection Challenge](../dataset_assessment.md#compact-paper-shortlist) | Detection of lung opacities considered possible pneumonia; DICOM images, multiple box rows for positive studies, and negative studies. The official challenge metric is mAP at IoU 0.4; public test labels are unavailable in the local bundle. | Training archive and annotations are locally present and structurally checked. Patient IDs are available for grouped internal train/validation splits. Verify current terms and reproduce the official evaluation protocol before any benchmark claim. | **Separate pneumonia experiment or replication.** Never merge its opacity targets with ChestX-Det10 disease classes or present its unlabeled public test set as an evaluated test set. Include only if the reviewed question and available labels support it. |
-| [SIIM-ACR Pneumothorax Segmentation](../dataset_assessment.md#compact-paper-shortlist) | Pneumothorax segmentation masks encoded as RLE, not native box detection labels; the challenge uses a Dice-based score. A bounding box could be derived from a valid mask, but this changes the target protocol and needs explicit evaluation rules. | The local purported ZIP is unreadable and incomplete as verified. The official challenge notes that training images were hosted separately and may no longer be available. A complete, authorized, checksum-verified source has not been established. | **Blocked; not currently an experiment dataset.** Record as a candidate extension only. Do not download from or redistribute an unverified mirror, and do not count it as the third usable dataset. If access is resolved, keep segmentation native and treat any mask-to-box conversion as a separate prespecified analysis. |
+| [ChestX-Det10](../dataset_assessment.md#compact-paper-shortlist) | 2D boxes for 10 thoracic findings, including pneumothorax; supplied train/test split; recall at 0.05, 0.1, and 0.2 false positives per image, with IoU 0.5. | Train/test image archives and JSON annotations are locally present. Annotation structure and ZIP integrity have been checked, but image-to-box dimension checks, visual review, and patient/study split independence remain open. | **Candidate reader-study site and feasibility pilot.** Use its boxes and native metric; do not assume its released boxes expose independent per-reader annotations. |
+| [RSNA Pneumonia Detection Challenge](../dataset_assessment.md#compact-paper-shortlist) | Detection of lung opacities considered possible pneumonia; DICOM images, multiple box rows for positive studies, and negative studies. The official challenge metric is mAP at IoU 0.4; public test labels are unavailable in the local bundle. | Training archive and annotations are locally present and structurally checked. Patient IDs are available for grouped internal train/validation splits. Verify current terms and reproduce the official evaluation protocol before any benchmark claim. | **Candidate reader-study site for a distinct opacity-box task.** Do not map its labels to ChestX-Det10 classes or present the unlabeled public test set as evaluated. Independent reader annotations and a reread protocol must be arranged. |
+| [SIIM-ACR Pneumothorax Segmentation](../dataset_assessment.md#compact-paper-shortlist) | Pneumothorax segmentation masks encoded as RLE, not native box detection labels; the challenge uses a Dice-based score. A bounding box could be derived from a valid mask, but this changes the target protocol and needs explicit evaluation rules. | The local purported ZIP is unreadable and incomplete as verified. The official challenge notes that training images were hosted separately and may no longer be available. A complete, authorized, checksum-verified source has not been established. | **Blocked but central to the all-three proposal.** No reader-relative mask study or box-to-mask transfer is possible until a verified source is recovered. Preserve segmentation-native analysis if it becomes usable. |
 
 “Three datasets are present in the inventory” does not mean “three datasets
 are ready for one experiment.” At present, ChestX-Det10 and RSNA support
@@ -391,20 +441,21 @@ risk to investigate, not a claim that the local subsets overlap.
 
 Potential contributions to investigate—not claims to make yet:
 
-1. A reproducible, paired audit of specific ChestX-Det10 matching,
-   interpolation, or threshold-selection details, **only if** prior work
-   leaves an ambiguity and it changes reported conclusions.
-2. A prespecified RSNA DICOM-rendering study if an exact rendering question
-   is both under-studied and consequential; use a separate task-specific
-   experiment and patient grouping.
-3. A validated, reusable preparation/evaluation implementation that records
-   data provenance, split definition, evaluator version, and run config.
-   Treat this as enabling infrastructure unless the literature review shows
-   a substantive methodological contribution.
-4. If SIIM access is resolved, add a separate native segmentation baseline.
-   If a detection experiment is also scientifically justified, analyze
-   mask-to-box conversion separately and avoid describing derived boxes as
-   radiologist-annotated boxes.
+1. A reader-relative analysis comparing model-to-reader localization with
+   reader-to-reader disagreement, using blinded independent rereads and
+   reporting each dataset/task separately. This is the lead all-three paper
+   concept and depends on reader resources, permissions, SIIM recovery, and
+   a completed novelty review.
+2. If the all-three reader study is infeasible, a pneumothorax box-to-mask
+   transfer analysis between ChestX-Det10 and SIIM, only if SIIM is recovered
+   and the transfer hypothesis is supported by targeted prior-art review.
+3. A separate RSNA possible-opacity localization study if a specific,
+   consequential question is established; preserve its own target, patient
+   grouping, and native metric.
+4. A validated, reusable preparation/evaluation implementation recording
+   provenance, split definition, evaluator version, and run configuration.
+   Treat this as enabling infrastructure unless the study demonstrates a
+   substantive methodological contribution.
 
 Do **not** claim a universal detector, cross-hospital robustness, clinical
 utility, or a shared multi-class task based on these resources alone. Similar
@@ -474,10 +525,12 @@ cases and overlays before training.
 
 ### Gate 3 — freeze the question and protocol
 
-Choose one primary dataset/question and decide whether another dataset is a
-separate replication or out of scope. Write the comparator and acceptance
-criteria before model experiments. Do not infer the final question from
-whichever metric/model produces the most attractive result.
+Freeze one shared scientific hypothesis and state which datasets are
+task-specific case studies versus separate follow-up studies. For an
+all-three reader study, predefine the reread sample, within-dataset
+comparators, native metrics, analysis, and acceptance criteria before model
+experiments. Do not infer the final question from whichever metric/model
+produces the most attractive result.
 
 ### Gate 4 — baseline, analysis, and reporting
 
@@ -489,18 +542,25 @@ protocol.
 
 ## Decision record
 
-- **Problem defined at the project level?** Yes: reliable, task-aware
-  preparation and evaluation of annotated CXR datasets.
-- **A paper problem and novelty claim established?** **Not yet.** The project
-  topic is selected; a paper-level hypothesis awaits targeted prior-art
-  review and data-readiness gates.
-- **Are all three local datasets ready for a unified experiment?** No.
-  ChestX-Det10 is the primary pilot, RSNA is a separate task, and SIIM-ACR is
-  blocked and segmentation-native.
-- **Next action:** verify the exact ChestX-Det10 evaluator behavior with
-  synthetic cases and complete image/box preflight; search targeted
-  evaluator-sensitivity and RSNA DICOM-rendering literature before choosing
-  a paper hypothesis or adding training functionality.
+- **Is there a real overarching research topic?** Yes, proposed: how
+  annotation type and dataset shift affect localization learning and
+  evaluation in chest radiographs.
+- **Is one paper question selected?** A lead hypothesis is identified:
+  compare model-to-reader localization with reader-to-reader disagreement
+  across task-appropriate annotations. It remains conditional, not an
+  approved or novel claim.
+- **Can one paper use all three datasets now?** No. SIIM-ACR is blocked
+  locally; new blinded rereads and permission are not established; targets
+  and native metrics differ. All three can be used only as separate
+  task-specific case studies under a common reader-relative hypothesis.
+- **What if that design is infeasible?** Consider a ChestX-Det10/SIIM
+  pneumothorax box-to-mask transfer paper after SIIM recovery; retain RSNA
+  for a separate opacity-localization study. Do not force RSNA into the
+  pneumothorax paper.
+- **Next action:** determine whether independent reader rereads are
+  logistically and ethically feasible, resolve SIIM source availability,
+  finish the closest-paper review, and audit overlap/provenance before
+  freezing the paper protocol or starting targeted model training.
 
 ## Starting sources
 
