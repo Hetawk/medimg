@@ -1,0 +1,20 @@
+.env
+.env.*
+!.env.example
+
+/datasets/**
+!/datasets/
+!/datasets/*/
+!/datasets/*/README.txt
+# Root-only rule: package code under src/medimg/ remains trackable.
+
+# Prepared tensors/arrays and experiment artifacts can be larger than raw code.
+/processed_data/
+/outputs/
+/.cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
