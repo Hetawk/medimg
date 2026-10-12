@@ -8,18 +8,20 @@ readiness before selecting a paper question or training models.
 
 ## Working topic
 
-**A leakage-aware, task-preserving reproducibility benchmark for annotated
-chest radiographs**
+**Evidence-first research on reliable localization in annotated chest
+radiographs**
 
-The project will build a reproducible, modular workflow for preparing and
-evaluating annotated chest-radiograph datasets. It will preserve the native
-task, label meaning, split, and evaluation protocol of each dataset instead
-of combining incompatible labels into a single detector.
+Our project topic is reliable, reproducible study of annotated chest
+radiographs, with each dataset kept faithful to its native task. The leading
+paper-topic candidate is to study whether specific data-preparation and
+evaluation choices materially change localization conclusions on
+ChestX-Det10, then test only a justified, separate replication on RSNA.
 
-This is a working project topic, not a confirmed novelty claim or final paper
-title. Existing papers have already introduced and evaluated each of these
-dataset tasks. A paper cannot claim novelty simply because this repository
-implements their adapters or trains another detector.
+This is a working direction, not an approved paper question or novelty
+claim. Existing papers already introduce these tasks, and ChestX-Det10
+already reports both AP and its native low-FP recall measure. A paper cannot
+claim novelty simply because this repository implements adapters, trains
+another detector, or reports both scores.
 
 ## Problem statement
 
@@ -43,56 +45,94 @@ new baseline alone is not a scientific novelty claim.
 
 ## Provisional research question
 
-> Under each dataset's native task and held-out evaluation protocol, how
-> sensitive are baseline performance and error conclusions to prespecified
-> data-integrity, split, and image/annotation-processing choices?
+> On ChestX-Det10, do well-defined differences in box matching, FROC
+> interpolation, or threshold selection materially change reported native
+> detection performance or scientific conclusions for identical frozen
+> predictions?
 
 This is a **candidate**, not an approved final question. Its scope must be
-made testable by Gate 1: select the specific pipeline choices that prior
-work has not already answered and for which the local data permits a
-controlled comparison. Analyze each task separately. Do not average recall
-at fixed false-positive rates, box mAP, and Dice into a common score.
+made testable by Gate 1: the published evaluator's implementation should be
+compared against its documented protocol, not arbitrary alternative
+definitions. Test the metric first using synthetic cases, then use identical
+frozen predictions for paired evaluator comparisons. If exact evaluator
+behavior matches the documented protocol and no meaningful ambiguity exists,
+this question is not a paper contribution. Analyze any other task separately.
+Do not average recall at fixed false-positive rates, box mAP, and Dice into a
+common score.
 
 ChestX-Det10 is the primary pilot because its native protocol is documented
 and its local source files are structurally readable. RSNA is a possible
-separate replication if its mAP protocol, patient-grouped validation, and
-data terms are confirmed. SIIM-ACR is blocked and has a distinct segmentation
-target. If the proposed sensitivity analysis is already well covered, or no
-controlled comparison is feasible, narrow or replace the question before
-implementing training.
+separate study only if the question can be meaningfully replicated under its
+own mAP protocol, patient-grouped validation, and data terms. SIIM-ACR is
+blocked and has a distinct segmentation target. If the proposed sensitivity
+analysis is already well covered, or no controlled comparison is feasible,
+narrow or replace the question before implementing training.
 
-## Initial prior-art review
+## Closest prior work and implications
 
-This is an initial, targeted review of core dataset/challenge papers and
-relevant generalization research, **not a systematic review**. It establishes
-that the datasets and basic tasks are not new; it does not establish that the
-candidate protocol/sensitivity question is novel.
+The annotated bibliography below is a focused literature map, not a
+systematic review. The rest of the bibliography provides methodological
+foundations; it does not establish novelty for our exact proposed study.
 
-| Prior work | What it establishes | Consequence for our question |
+### Reading depth and scope
+
+The direct-precedent assessment draws on the ChestX-Det10 dataset paper and
+challenge paper, their released evaluator, the full RSNA annotation article,
+the full Zech et al. external-validation article, and Dumbrique et al.'s
+SIIM-ACR study. The remaining
+numbered works were screened and annotated for relevance from their
+publication records and accessible abstracts/source summaries; **they have
+not all been independently read cover-to-cover**. Reporting guidelines and
+general detector/segmentation papers below are foundations, not direct
+evidence about the exact local datasets or proposed sensitivity question.
+
+Before a final paper proposal, read the methods, results, limitations, and
+supplementary material of every closest task-specific paper identified in a
+targeted search. Record the exact claim, data version/split, metric,
+comparator, result, and limitation in a study matrix. This focused source
+review is not proof that no related paper exists.
+
+| Closest source | What the paper/source establishes | Implication for topic selection |
 |---|---|---|
-| Liu, Lian & Yu (2020), [ChestX-Det10](https://arxiv.org/abs/2006.10550), and the [authors' repository/evaluator](https://github.com/Deepwise-AILab/ChestX-Det10-Dataset) | Introduces a radiologist-box dataset of ten thoracic findings and its native low-false-positive recall evaluation. | Re-running this dataset with an ordinary detector is not novel. Preserve its definitions and do not silently substitute AP for the native primary measure. |
-| Lian et al. (2020), [ChestX-Det10 challenge results](https://arxiv.org/abs/2010.10298) | Reports challenge systems and results on the dataset. | Treat the existing challenge work as a comparator; freeze the exact local release, split files, and evaluator rather than assuming every paper used identical artifacts. |
-| Shih et al. (2019), [RSNA Pneumonia Detection Challenge](https://doi.org/10.1148/ryai.2019180041), with the [official challenge](https://www.rsna.org/artificial-intelligence/ai-image-challenge/rsna-pneumonia-detection-challenge-2018) | Documents expert annotations of lung opacities considered possible pneumonia and the challenge detection task. The official metric is mAP at IoU 0.4. | Do not equate RSNA opacity with a ChestX-Det10 disease label. Reproduce the stated metric and keep RSNA results separate. |
-| [SIIM-ACR Pneumothorax Segmentation Challenge](https://www.kaggle.com/competitions/siim-acr-pneumothorax-segmentation/data); Dumbrique et al. (2024), [review/study](https://doi.org/10.3389/fradi.2024.1424065) | Defines a mask/RLE pneumothorax segmentation task; published work already addresses pneumothorax detection/segmentation. | Mask-to-box conversion would create a derived detection target, not make SIIM a native box dataset. The local archive remains unusable until a complete authorized image source is verified. |
-| Zech et al. (2018), [institutional generalization study](https://doi.org/10.1371/journal.pmed.1002683) | Demonstrates that pneumonia-model performance can vary across institutions. | Supports careful external-validity claims, but these three resources do not by themselves constitute a clean external-generalization design. |
+| Liu, Lian & Yu (2020), [ChestX-Det10 paper](https://arxiv.org/abs/2006.10550v3) | Introduces expert box annotations for ten findings on an NIH ChestX-ray14 subset; describes the 3,001/542 split and a Faster R-CNN/FPN baseline; reports AP and fixed-FP recall. | Dataset, task, conventional baseline, and reporting both endpoint families are prior work. Another baseline or simple AP-versus-recall table is weak novelty. |
+| Lian et al. (2020), [ChestX-Det10 challenge results](https://arxiv.org/abs/2010.10298v2) | Reports six second-round challenge teams, detector designs and augmentation strategies, using native recall at 0.05/0.1/0.2 FP per image with IoU 0.5. | A detector leaderboard is established; any new comparison needs a different, consequential hypothesis. |
+| [ChestX-Det10 official evaluator](https://github.com/Deepwise-AILab/ChestX-Det10-Dataset/blob/master/eval.py) | Defines FROC-style matching/interpolation at the native FP/image points; the released IoU implementation uses inclusive `+1` box dimensions. | Reimplementing a scorer is not a contribution by itself. First identify a documented ambiguity/bug and quantify whether it changes conclusions. |
+| Shih et al. (2019), [RSNA annotation paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC8017407/) and [DOI](https://doi.org/10.1148/ryai.2019180041) | Describes expert annotation of opacities that may represent pneumonia, including multiple readers/adjudication, as a distinct NIH-derived challenge task. | RSNA is not a ChestX-Det10 class and cannot be pooled as a matching ontology. Use its own patient grouping and mAP at IoU 0.4. |
+| Zech et al. (2018), [institutional generalization study](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1002683) | In 158,323 radiographs from NIH, Mount Sinai, and Indiana, external performance was lower in 3 of 5 natural comparisons; hospital source was highly predictable, and prevalence differences affected apparent performance. The endpoint was image-level pneumonia screening/classification. | Motivates caution and source-aware design, but does not test these box datasets, local subsets, or actual ChestX-Det10/RSNA overlap. |
+| Dumbrique et al. (2024), [P-DeSeRay](https://doi.org/10.3389/fradi.2024.1424065), and the [SIIM-ACR challenge](https://www.kaggle.com/competitions/siim-acr-pneumothorax-segmentation/data) | Proposes a patch-based fully convolutional encoder-decoder for pneumothorax detection/segmentation, evaluates on SIIM-ACR and a private hospital dataset, and reports benefit from a mixed Tversky/focal loss ablation. | Routine SIIM architecture/loss comparisons already have direct precedent. SIIM is a separate segmentation task and unusable from the current local archive. |
 
-The plausible added value is therefore **not a new disease detector**. It may
-be a transparent, reproducible audit of how specific data lineage, split,
-decoding/annotation conversion, and scorer choices affect native-task
-measurements, reported with task-specific uncertainty and failure analysis.
-That is only a candidate methods/benchmark contribution: this focused
-bibliography does not prove a research gap or support a novelty claim.
+### Candidate-topic comparison
 
-## Annotated literature review: 55 publications
+| Candidate topic | Proposed test | Feasibility | Main weakness / decision |
+|---|---|---|---|
+| **1. ChestX-Det10 measurement sensitivity** | Freeze identical predictions; compare the authors' evaluator with an independently tested implementation and report native FROC plus separately defined AP. Test whether scoring conventions change results or conclusions. | Highest: local archives/JSON are available, and evaluator tests can be built with synthetic predictions before training. | The dataset paper already reports both AP and fixed-FP recall. Proceed as a paper only if a consequential, previously unaddressed ambiguity exists; otherwise it is a correctness check, not a paper topic. |
+| **2. ChestX-Det10 integrity/provenance audit** | Validate image coverage, decoded dimensions, box overlays, duplicates, split provenance, and recoverable patient/study separation; quantify model impact only if a consequential issue is found. | High as required engineering, but patient/study metadata may be missing. | A generic checklist is incremental. A paper depends on a material, independently verified finding or effect. |
+| **3. RSNA DICOM-rendering sensitivity** | Compare prespecified, standards-consistent DICOM rendering policies using a fixed detector, patient-grouped validation, and mAP at IoU 0.4. | Moderate: labeled archive and `patientId` exist, but renderer, scorer, and terms need verification. | Plausible alternative if a deeper search establishes an under-studied, consequential question. Could be only engineering if choices are arbitrary or settled. Keep separate from ChestX-Det10. |
+| **4. Cross-dataset transfer / NIH-lineage overlap** | First identify exact-image/patient matches and establish a genuinely shared target; only then consider transfer/external validation with a sensitivity analysis excluding matches. | Low to moderate: shared source lineage motivates an audit but does not prove overlap. | Do not select now. No common ontology is justified; do not call either set an independent external test without evidence. |
+| **5. SIIM mask segmentation / mask-to-box** | Recover valid images/masks and reproduce Dice segmentation first. Prespecify any derived-box analysis as a separate target. | Not currently feasible; local archive is incomplete/unusable. | Exclude unless complete authorized data are recovered. |
 
-This focused review includes 55 distinct research papers, dataset/challenge
+**Project-level topic recommendation:** reliable, task-faithful evaluation of
+annotated chest-radiograph datasets. Begin with the ChestX-Det10 integrity
+and evaluator pilot; keep RSNA separate and SIIM blocked. Do **not** yet
+approve a paper topic or novelty claim. The leading paper hypothesis is
+evaluator/endpoint sensitivity only if the next focused literature search
+finds an exact, unaddressed ambiguity; otherwise pivot rather than stretching
+the claim.
+
+The plausible added value is therefore not a new disease detector. The
+candidate is a transparent audit of whether specific data and evaluation
+decisions materially affect task-native conclusions. The current review does
+not prove that this gap exists.
+
+## Annotated literature review: 57 publications
+
+This focused review includes 57 distinct research papers, dataset/challenge
 papers, methods papers, reviews, and reporting/methodology publications. It
-is not a systematic review and does not claim exhaustive coverage. The
-numbering identifies unique works. Brief findings below describe why each
-work matters to the proposed study; use the linked source for exact methods,
-cohort details, metric implementations, and full author metadata. General
-detector/method papers are foundational methods, not evidence that those
-models perform well on our datasets.
+is not a systematic review and does not claim exhaustive coverage. Brief
+findings explain relevance; follow the linked source for detailed methods,
+cohort details, exact metrics, and full author metadata. General detector
+and methods papers provide foundations, not evidence of performance on our
+datasets.
 
 ### A. Dataset, cohort, and annotation provenance
 
@@ -269,9 +309,15 @@ models perform well on our datasets.
 55. **Riley et al. (2020), “Calculating the sample size required for developing a clinical prediction model.”** Methods paper. [DOI](https://doi.org/10.1136/bmj.m441)
     Provides principled sample-size methods. It cautions against inferring evidence strength from convenience benchmark size alone.
 
-## Evidence synthesis and candidate paper directions
+56. **Shih et al. (2019), “Augmenting the National Institutes of Health Chest Radiograph Dataset with Expert Annotations of Possible Pneumonia.”** Dataset/annotation paper. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC8017407/); [DOI](https://doi.org/10.1148/ryai.2019180041)
+    Describes expert bounding-box annotation of pulmonary opacities that may represent pneumonia for the RSNA challenge, including multi-reader review/adjudication. It establishes RSNA's distinct annotation semantics and NIH lineage; the opacity task is not interchangeable with a ChestX-Det10 disease class.
 
-### What these papers support
+57. **Dumbrique et al. (2024), “Pneumothorax detection and segmentation from chest X-ray radiographs using a patch-based fully convolutional encoder-decoder network.”** Primary study. [DOI/full text](https://doi.org/10.3389/fradi.2024.1424065)
+    Proposes P-DeSeRay for pneumothorax detection and segmentation, evaluates on SIIM-ACR and a private hospital dataset, and reports an ablation in which mixed Tversky-plus-focal loss improves over Tversky alone. This is direct evidence that routine SIIM-only architecture/loss comparison is already crowded; any SIIM study would need a distinct question and recovered authorized data.
+
+## Evidence synthesis and topic choice
+
+### What the papers support
 
 - Keep ChestX-Det10, RSNA, and SIIM targets, splits, and metrics separate.
 - Report ChestX-Det10 native recall at its specified FP/image points and IoU
@@ -280,7 +326,7 @@ models perform well on our datasets.
 - Audit image/patient provenance and possible duplication before any
   cross-dataset or external-validation claim. NIH lineage is a risk signal,
   not proof of overlap.
-- Represent whether supervision is report-derived, expert assigned,
+- Preserve whether supervision is report-derived, expert assigned,
   image-level, box-level, or mask-level. Do not treat attention maps as
   localization ground truth.
 - Keep SIIM blocked until a complete authorized source is verified and image
@@ -290,56 +336,45 @@ models perform well on our datasets.
   transformations, prediction serialization, evaluator, model settings, and
   seeds.
 
-### What remains unresolved
+### What still needs evidence
 
-1. ChestX-Det10/RSNA actual overlap is unmeasured; shared NIH lineage alone
-   does not establish image or patient duplication.
-2. The local SIIM archive has not been validated as a usable source in this
-   review; the local failure is a project constraint, not an independent
-   forensic conclusion about the archive.
-3. The reviewed papers do not establish that one architecture or
-   preprocessing pipeline is best across these different tasks.
-4. A focused 55-publication bibliography does not establish novelty or
-   exhaust the field. Search exact recent baselines, challenge submissions,
-   and cross-dataset studies before claiming a gap.
-5. The initial RSNA paper cited above and official competition material do
-   not replace verification of exact evaluator code and current competition
-   rules.
+1. Whether ChestX-Det10 scorer details create any meaningful ambiguity
+   beyond choices already disclosed in its paper and evaluator.
+2. Whether controlled DICOM-rendering choices on RSNA have an
+   under-investigated, consequential effect on its native box metric.
+3. Whether patient/source identifiers support a valid split and overlap
+   audit; NIH lineage alone does not prove duplicate images or patients.
+4. Whether the SIIM source can be recovered completely and lawfully; the
+   local archive has not been validated as usable in this review.
+5. Whether any exact version of these candidate studies has already been
+   published. A focused 57-publication bibliography is not exhaustive and
+   does not prove novelty.
 
-### Ranked directions (not yet selected)
+### Decision
 
-1. **Primary candidate: audit how reproducible data and evaluation choices
-   affect native ChestX-Det10 results.** A fixed baseline and official native
-   evaluator could test prespecified image scaling, confidence threshold
-   selection, and error analyses. This becomes a paper direction only if a
-   targeted literature search shows a meaningful unaddressed question and
-   the local split/annotations are validated. Risk: detector comparison and
-   pipeline engineering alone are incremental.
-2. **Conditional candidate: overlap-aware transfer between NIH-lineage
-   sources.** Compare source-specific performance only for a clearly
-   compatible target and after image/patient deduplication. Prerequisites
-   include source IDs, a verified ontology mapping, fixed native metrics,
-   and sensitivity analysis excluding suspected matches. Risk: the
-   ChestX-Det10 and RSNA targets are not a shared disease ontology; overlap
-   is unknown.
-3. **Separate future project: SIIM-ACR segmentation and annotation validity.**
-   Compare a strong U-Net-family baseline with a well-configured general
-   segmentation baseline and test mask decoding/scoring sensitivity.
-   Prerequisite: complete authorized data. Risk: currently blocked; routine
-   architecture comparison is likely weak without a substantive audit.
+The **project topic** is selected: reliable, task-faithful evaluation of
+annotated chest radiographs. The **paper topic is not selected yet**. Begin
+with ChestX-Det10 data-integrity checks and synthetic validation of its
+official evaluator. In parallel, do a focused search for scorer-sensitivity
+studies and RSNA DICOM-rendering studies. Promote one to the paper question
+only if it is both under-addressed and experimentally testable with our
+assets.
 
-**Title decision: premature.** Do not choose a novelty-signaling paper title
-until Gate 1 (fuller related-work review), Gate 2 (data readiness), and Gate
-3 (frozen question/protocol) pass. A neutral working label is **“A
-Task-Preserving, Reproducible Evaluation Pipeline for Annotated Chest
-Radiographs”**; use it only as a project label, not as a claimed scientific
-contribution.
+The closest direct paper review confirms that a normal detector comparison,
+a simple AP-versus-native-recall table, or modular data-loader engineering
+alone would be weak. If no consequential effect or research gap survives the
+next review, keep the work as a high-quality reproducibility/engineering
+project instead of forcing a novelty claim. Do not select SIIM as the
+current topic while its source is unavailable.
+
+**Paper title: premature.** Name the paper after the question, comparator,
+and study protocol are justified—not before.
 
 ## Dataset requirements and roles
 
 | Dataset | Native annotation/task | Current local status | Role in this project |
 |---|---|---|---|
-| [ChestX-Det10](../dataset_assessment.md#compact-paper-shortlist) | 2D boxes for 10 thoracic findings, including pneumothorax; supplied train/test split; recall at 0.05, 0.1, and 0.2 false positives per image, with IoU 0.5. | Train/test image archives and JSON annotations are locally present. Annotation structure and ZIP integrity have been checked, but image-to-box dimension checks, visual review, and patient/study split independence remain open. | **Primary pilot and candidate main experiment.** Preserve the native metric as the primary endpoint if the question survives review; report AP only as a separately defined secondary metric. |
+| [ChestX-Det10](../dataset_assessment.md#compact-paper-shortlist) | 2D boxes for 10 thoracic findings, including pneumothorax; supplied train/test split; recall at 0.05, 0.1, and 0.2 false positives per image, with IoU 0.5. | Train/test image archives and JSON annotations are locally present. Annotation structure and ZIP integrity have been checked, but image-to-box dimension checks, visual review, and patient/study split independence remain open. | **Primary feasibility pilot.** Preserve the native metric. Only pursue a metric-sensitivity paper if a meaningful gap survives the targeted literature review. |
 | [RSNA Pneumonia Detection Challenge](../dataset_assessment.md#compact-paper-shortlist) | Detection of lung opacities considered possible pneumonia; DICOM images, multiple box rows for positive studies, and negative studies. The official challenge metric is mAP at IoU 0.4; public test labels are unavailable in the local bundle. | Training archive and annotations are locally present and structurally checked. Patient IDs are available for grouped internal train/validation splits. Verify current terms and reproduce the official evaluation protocol before any benchmark claim. | **Separate pneumonia experiment or replication.** Never merge its opacity targets with ChestX-Det10 disease classes or present its unlabeled public test set as an evaluated test set. Include only if the reviewed question and available labels support it. |
 | [SIIM-ACR Pneumothorax Segmentation](../dataset_assessment.md#compact-paper-shortlist) | Pneumothorax segmentation masks encoded as RLE, not native box detection labels; the challenge uses a Dice-based score. A bounding box could be derived from a valid mask, but this changes the target protocol and needs explicit evaluation rules. | The local purported ZIP is unreadable and incomplete as verified. The official challenge notes that training images were hosted separately and may no longer be available. A complete, authorized, checksum-verified source has not been established. | **Blocked; not currently an experiment dataset.** Record as a candidate extension only. Do not download from or redistribute an unverified mirror, and do not count it as the third usable dataset. If access is resolved, keep segmentation native and treat any mask-to-box conversion as a separate prespecified analysis. |
 
@@ -356,11 +391,12 @@ risk to investigate, not a claim that the local subsets overlap.
 
 Potential contributions to investigate—not claims to make yet:
 
-1. A reproducible comparison of a dataset-native low-FP operating metric and
-   a standardized AP metric, with a test of whether model/checkpoint choices
-   or error conclusions change.
-2. A carefully controlled, dataset-specific replication of the analysis on
-   RSNA, if its native metric and protocol provide a meaningful comparison.
+1. A reproducible, paired audit of specific ChestX-Det10 matching,
+   interpolation, or threshold-selection details, **only if** prior work
+   leaves an ambiguity and it changes reported conclusions.
+2. A prespecified RSNA DICOM-rendering study if an exact rendering question
+   is both under-studied and consequential; use a separate task-specific
+   experiment and patient grouping.
 3. A validated, reusable preparation/evaluation implementation that records
    data provenance, split definition, evaluator version, and run config.
    Treat this as enabling infrastructure unless the literature review shows
@@ -455,15 +491,16 @@ protocol.
 
 - **Problem defined at the project level?** Yes: reliable, task-aware
   preparation and evaluation of annotated CXR datasets.
-- **A paper problem and novelty claim established?** **Not yet.** The
-  task-preserving pipeline/split sensitivity question is provisional pending
-  the full literature review and data-readiness gates.
+- **A paper problem and novelty claim established?** **Not yet.** The project
+  topic is selected; a paper-level hypothesis awaits targeted prior-art
+  review and data-readiness gates.
 - **Are all three local datasets ready for a unified experiment?** No.
   ChestX-Det10 is the primary pilot, RSNA is a separate task, and SIIM-ACR is
   blocked and segmentation-native.
-- **Next action:** complete and record the focused literature review, resolve
-  the question, and finish data-readiness checks before adding training
-  functionality.
+- **Next action:** verify the exact ChestX-Det10 evaluator behavior with
+  synthetic cases and complete image/box preflight; search targeted
+  evaluator-sensitivity and RSNA DICOM-rendering literature before choosing
+  a paper hypothesis or adding training functionality.
 
 ## Starting sources
 
