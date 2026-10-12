@@ -7,6 +7,9 @@ has been trained, and no dataset has been uploaded.
 
 ## Documents
 
+- [Project problem definition](problem_definition.md) — provisional research
+  topic, dataset roles, candidate question, novelty gate, and study
+  requirements.
 - [Research findings and scope](research_findings.md) — local data readiness,
   candidate study directions, dataset limitations, and source links.
 - [Detection workflow and evaluation protocol](detection_workflow.md) —
@@ -33,7 +36,10 @@ The first implementation gate is not model training: verify image dimensions,
 annotation-to-image correspondence, patient/study grouping where available,
 and representative box overlays. Materialize validated data separately from
 training and consume the resulting versioned cache during model runs. Only
-proceed to a fixed baseline after these checks pass.
+proceed to a fixed baseline after these checks pass. The paper question is
+still provisional; follow the review and decision gates in
+[the project problem definition](problem_definition.md) before making a
+novelty claim or implementing a training study.
 
 ## Current implementation boundary
 

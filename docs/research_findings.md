@@ -1,5 +1,10 @@
 # Research Findings and Study Scope
 
+See the [project problem definition](problem_definition.md) for the provisional
+question, dataset roles, literature-review gate, and requirements to freeze a
+study protocol. This document records evidence and candidate directions; it
+does not establish a novelty claim.
+
 ## Executive assessment
 
 The local resources are a useful starting point for a **2D chest X-ray object

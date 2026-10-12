@@ -1212,7 +1212,7 @@ current 2D radiograph detection scope:
 
 | Handbook principle | Project implementation |
 |---|---|
-| Define the task and intended claim before selecting a model | Keep box detection separate from image classification and mask segmentation. Record the study question, target ontology, primary metric, and intended generalization unit before opening an experiment. |
+| Define the task and intended claim before selecting a model | Keep box detection separate from image classification and mask segmentation. Record the study question, target ontology, primary metric, and intended generalization unit before opening an experiment; the current provisional question and required decision gates are in [`problem_definition.md`](problem_definition.md). |
 | Establish data provenance, schema, quality, and permission | Each `medimg.adapters` plugin owns source-specific validation. `medimg.loader` prepares a versioned artifact and records the source/config fingerprint. Keep raw data and generated artifacts out of Git. |
 | Prevent leakage using the true independent unit | Preserve official dataset splits. Use patient/study-level grouping when identifiers exist; report limitations when grouping cannot be established. Never split annotation rows independently of images or patients. |
 | Match preprocessing and augmentation to the task | Decode and canonicalize once during preparation. Apply stochastic transforms at training time, and require image/box geometry to remain aligned. Keep validation and test transforms deterministic. |
